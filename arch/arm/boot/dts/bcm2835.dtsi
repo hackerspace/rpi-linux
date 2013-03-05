@@ -180,6 +180,60 @@
 		};
 	};
 
+	sound {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		sound@0 {
+			reg = <0>;
+			compatible = "brcm,bcm2835-audio";
+			brcm,bcm2835-vchiq = <&vchiq>;
+		};
+
+		sound@1 {
+			reg = <1>;
+			compatible = "brcm,bcm2835-audio";
+			brcm,bcm2835-vchiq = <&vchiq>;
+		};
+
+		sound@2 {
+			reg = <2>;
+			compatible = "brcm,bcm2835-audio";
+			brcm,bcm2835-vchiq = <&vchiq>;
+		};
+
+		sound@3 {
+			reg = <3>;
+			compatible = "brcm,bcm2835-audio";
+			brcm,bcm2835-vchiq = <&vchiq>;
+		};
+
+		sound@4 {
+			reg = <4>;
+			compatible = "brcm,bcm2835-audio";
+			brcm,bcm2835-vchiq = <&vchiq>;
+		};
+
+		sound@5 {
+			reg = <5>;
+			compatible = "brcm,bcm2835-audio";
+			brcm,bcm2835-vchiq = <&vchiq>;
+		};
+
+		sound@6 {
+			reg = <6>;
+			compatible = "brcm,bcm2835-audio";
+			brcm,bcm2835-vchiq = <&vchiq>;
+		};
+
+		sound@7 {
+			reg = <7>;
+			compatible = "brcm,bcm2835-audio";
+			brcm,bcm2835-vchiq = <&vchiq>;
+		};
+	};
+
 	clocks {
 		compatible = "simple-bus";
 		#address-cells = <1>;
