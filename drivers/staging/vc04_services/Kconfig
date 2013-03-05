@@ -1,0 +1,9 @@
+config BCM2835_VCHIQ
+	tristate "Videocore VCHIQ"
+	depends on ARCH_BCM2835 && BCM2835_MBOX
+	default y
+	help
+		Kernel to VideoCore communication interface for the
+		BCM2835 family of products.
+		Defaults to Y when the Broadcom Videocore services
+		are included in the build, N otherwise.

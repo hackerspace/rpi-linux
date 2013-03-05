@@ -62,6 +62,12 @@
 			reg = <0x7e104000 0x10>;
 		};
 
+		vchiq: vchiq {
+			compatible = "brcm,bcm2835-vchiq";
+			reg = <0x7e00b800 0x50>;
+			interrupts = <0 2>;
+		};
+
 		mailbox: mailbox@7e00b800 {
 			compatible = "brcm,bcm2835-mbox";
 			reg = <0x7e00b880 0x40>;
