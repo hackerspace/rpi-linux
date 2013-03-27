@@ -1,0 +1,13 @@
+Raspberry Pi Broadcom BCM2835 CPU frequency control
+
+Required properties:
+
+- compatible : should be "raspberrypi,bcm2835-cpufreq"
+- firmware : the Raspberry Pi firmware node
+
+Example:
+
+cpufreq {
+        compatible = "raspberrypi,bcm2835-cpufreq";
+        firmware = <&firmware>;
+};
