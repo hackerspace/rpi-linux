@@ -18,6 +18,11 @@
 			compatible = "raspberrypi,bcm2835-firmware";
 			mboxes = <&mailbox>;
 		};
+
+		cpufreq {
+			compatible = "raspberrypi,bcm2835-cpufreq";
+			firmware = <&firmware>;
+		};
 	};
 };
 

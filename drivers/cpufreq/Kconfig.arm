@@ -267,3 +267,12 @@ config ACPI_CPPC_CPUFREQ
 	  support for its operation.
 
 	  If in doubt, say N.
+
+config ARM_BCM2835_CPUFREQ
+	tristate "Raspberry Pi BCM2835 CPUFreq support"
+	depends on RASPBERRYPI_FIRMWARE
+	help
+	  This adds the BCM2835 CPU frequency control driver for Raspberry Pi
+	  devices.
+
+	  If in doubt, say N.

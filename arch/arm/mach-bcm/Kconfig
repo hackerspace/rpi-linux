@@ -138,6 +138,7 @@ config ARCH_BCM2835
 	bool "Broadcom BCM2835 family"
 	depends on ARCH_MULTI_V6 || ARCH_MULTI_V7
 	select ARCH_REQUIRE_GPIOLIB
+	select ARCH_HAS_CPUFREQ
 	select ARM_AMBA
 	select ARM_ERRATA_411920 if ARCH_MULTI_V6
 	select ARM_TIMER_SP804
