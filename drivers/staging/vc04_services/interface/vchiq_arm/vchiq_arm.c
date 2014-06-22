@@ -690,7 +690,7 @@ set_suspend_state(VCHIQ_ARM_STATE_T *arm_state,
 		complete_all(&arm_state->vc_resume_complete);
 		break;
 	case VC_SUSPEND_IDLE:
-		INIT_COMPLETION(arm_state->vc_suspend_complete);
+		reinit_completion(&arm_state->vc_suspend_complete);
 		break;
 	case VC_SUSPEND_REQUESTED:
 		break;
@@ -718,7 +718,7 @@ set_resume_state(VCHIQ_ARM_STATE_T *arm_state,
 	case VC_RESUME_FAILED:
 		break;
 	case VC_RESUME_IDLE:
-		INIT_COMPLETION(arm_state->vc_resume_complete);
+		reinit_completion(&arm_state->vc_resume_complete);
 		break;
 	case VC_RESUME_REQUESTED:
 		break;
@@ -780,7 +780,7 @@ block_resume(VCHIQ_ARM_STATE_T *arm_state)
 	 * (which only happens when blocked_count hits 0) then those threads
 	 * will have to wait until next time around */
 	if (arm_state->blocked_count) {
-		INIT_COMPLETION(arm_state->blocked_blocker);
+		reinit_completion(&arm_state->blocked_blocker);
 		write_unlock_bh(&arm_state->susp_res_lock);
 		vchiq_log_info(vchiq_susp_log_level, "%s wait for previously "
 			"blocked clients", __func__);
@@ -825,7 +825,7 @@ block_resume(VCHIQ_ARM_STATE_T *arm_state)
 		write_lock_bh(&arm_state->susp_res_lock);
 		resume_count++;
 	}
-	INIT_COMPLETION(arm_state->resume_blocker);
+	reinit_completion(&arm_state->resume_blocker);
 	arm_state->resume_blocked = 1;
 
 out:
