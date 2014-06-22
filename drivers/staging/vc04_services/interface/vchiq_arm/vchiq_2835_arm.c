@@ -46,13 +46,11 @@
 //#include <mach/irqs.h>
 //#include <mach/platform.h>
 //#include <mach/vcio.h>
-#include <linux/mailbox.h>
+#include <linux/mailbox_client.h>
 
 #include <linux/platform_device.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
-
-#define MBOX_CHAN_VCHIQ    3 /* for use by the VCHIQ interface */
 
 #define ARM_0_BELL2 0x48
 #define ARM_0_BELL0 0x40
@@ -104,6 +102,8 @@ vchiq_platform_init(struct platform_device *pdev, VCHIQ_STATE_T *state)
         struct device *dev = &pdev->dev;
         struct device_node *np = dev->of_node;
 	int irq;
+	struct mbox_client vchiq_mbox_client;
+	struct mbox_chan *vchiq_mbox_chan = NULL;
 
 	/* Allocate space for the channels in coherent memory */
 	g_slot_mem_size = PAGE_ALIGN(TOTAL_SLOTS * VCHIQ_SLOT_SIZE);
@@ -172,8 +172,19 @@ vchiq_platform_init(struct platform_device *pdev, VCHIQ_STATE_T *state)
 
 	dsb(); /* Ensure all writes have completed */
 
-	//bcm_mailbox_write(MBOX_CHAN_VCHIQ, (unsigned int)g_slot_phys);
-	err = bcm2835_mbox_io(MBOX_CHAN_VCHIQ, (unsigned int)g_slot_phys | 0x40000000, NULL);
+	memset(&vchiq_mbox_client, 0, sizeof(vchiq_mbox_client));
+	vchiq_mbox_client.dev = dev;
+
+	vchiq_mbox_chan =
+		mbox_request_channel(&vchiq_mbox_client, 0);
+	if (IS_ERR(vchiq_mbox_chan)) {
+		dev_err(dev, "Could not get the vchiq mailbox channel\n");
+		err = PTR_ERR(vchiq_mbox_chan);
+		vchiq_mbox_chan = NULL;
+		goto out;
+	}
+
+	err = mbox_send_message(vchiq_mbox_chan, (unsigned int)g_slot_phys | 0x40000000);
 	if (err < 0) {
 		dev_err(dev, "Missed acknowledgement\n");
 		err = -ENODEV;
@@ -190,6 +201,7 @@ vchiq_platform_init(struct platform_device *pdev, VCHIQ_STATE_T *state)
    return 0;
 
 out:
+   mbox_free_channel(vchiq_mbox_chan);
    dma_free_coherent(NULL, g_slot_mem_size, g_slot_mem, g_slot_phys);
    return err;
 }
