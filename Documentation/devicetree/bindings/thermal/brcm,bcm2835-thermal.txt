@@ -1,0 +1,15 @@
+Broadcom BCM2835 thermal control
+
+Required properties:
+
+- compatible : should be "brcm,bcm2835-thermal"
+- mbox-names : names of the mailbox channel
+- mboxes : mailbox channel to use
+
+Example:
+
+thermal {
+	compatible = "brcm,bcm2835-thermal";
+	mbox-names = "property";
+	mboxes = <&mailbox 8>;
+};
