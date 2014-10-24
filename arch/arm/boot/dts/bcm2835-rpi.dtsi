@@ -18,6 +18,11 @@
 			compatible = "raspberrypi,bcm2835-firmware";
 			mboxes = <&mailbox>;
 		};
+
+		thermal {
+			compatible = "raspberrypi,bcm2835-thermal";
+			firmware = <&firmware>;
+		};
 	};
 };
 
