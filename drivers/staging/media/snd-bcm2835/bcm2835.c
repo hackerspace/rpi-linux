@@ -92,7 +92,6 @@ static int snd_bcm2835_alsa_probe(struct platform_device *pdev)
 	struct snd_card *card;
 	int err;
 	struct device *dev = &pdev->dev;
-	struct device_node *np = dev->of_node;
 
 	if (devid >= MAX_SUBSTREAMS)
 		return -ENODEV;
@@ -105,7 +104,7 @@ static int snd_bcm2835_alsa_probe(struct platform_device *pdev)
 	if (devid > 0)
 		goto add_register_map;
 
-	err = snd_card_create(index[devid], id[devid], THIS_MODULE, 0, &g_card);
+	err = snd_card_new(dev, index[devid], id[devid], THIS_MODULE, 0, &g_card);
 	if (err < 0)
 		goto out;
 
