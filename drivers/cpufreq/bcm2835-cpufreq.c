@@ -7,7 +7,7 @@
  * runtime.
  *
  * Copyright 2011 Broadcom Corporation.  All rights reserved.
- * Copyright 2013 Lubomir Rintel
+ * Copyright 2013,2015 Lubomir Rintel
  *
  * Unless you and Broadcom execute a separate written software license
  * agreement governing use of this software, this software is licensed to you
@@ -27,6 +27,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/mailbox_client.h>
 #include <linux/platform_device.h>
+#include <soc/bcm2835/raspberrypi-firmware.h>
 
 #define VCMSG_SET_CLOCK_RATE	0x00038002
 #define VCMSG_GET_CLOCK_RATE	0x00030002
@@ -38,91 +39,53 @@ struct mbox_client bcm2835_property_client;
 struct mbox_chan *bcm2835_property_chan;
 
 /* tag part of the message */
-struct vc_msg_tag {
-	u32 tag_id;		/* the message id */
-	u32 buffer_size;	/* size of the buffer (8 bytes) */
-	u32 data_size;		/* amount of data being sent or received */
+struct prop {
 	u32 dev_id;		/* the ID of the clock/voltage to get or set */
 	u32 val;		/* the value (e.g. rate (in Hz)) to set */
-} __packed;
-
-/* message structure to be sent to videocore */
-struct vc_msg {
-	u32 msg_size;		/* simply, sizeof(struct vc_msg) */
-	u32 request_code;	/* holds various information like thei
-				 * success and number of bytes returned */
-	struct vc_msg_tag tag;	/* the tag structure above to make */
-	u32 end_tag;		/* an end identifier, should be set to NULL */
 } __packed;
 
 /* clk_rate either gets or sets the clock rates.  */
 static u32 bcm2835_cpufreq_set_clock(int cur_rate, int arm_rate)
 {
 	int ret = 0;
-	dma_addr_t msg_bus;
-	struct vc_msg *msg;
-
-	msg = dma_alloc_coherent(NULL, PAGE_ALIGN(sizeof(*msg)), &msg_bus,
-							GFP_KERNEL);
-	if (!msg)
-		return -ENOMEM;
-
-	/* wipe all previous message data */
-	memset(msg, 0, sizeof(*msg));
-
-	msg->msg_size = sizeof(*msg);
-
-	msg->tag.tag_id = VCMSG_SET_CLOCK_RATE;
-	msg->tag.buffer_size = 8;
-	msg->tag.data_size = 8;	/* we're sending the clock ID and the
-				 * knew rates which is a total of 2 words */
-	msg->tag.dev_id = VCMSG_ID_ARM_CLOCK;
-	msg->tag.val = arm_rate * 1000;
+	struct prop msg = {
+		.dev_id = VCMSG_ID_ARM_CLOCK,
+		.val = arm_rate * 1000,
+	};
 
 	/* send the message */
-	ret = mbox_send_message(bcm2835_property_chan, (void *)msg_bus);
+	ret = rpi_firmware_property(rpi_firmware_get(NULL),
+					VCMSG_SET_CLOCK_RATE,
+					&msg, sizeof (msg));
 
 	/* check if it was all ok and return the rate in KHz */
-	if (ret == 0 && (msg->request_code & 0x80000000))
-		ret = msg->tag.val/1000;
+	if (ret) {
+		pr_err("bcm2835_cpufreq: could not set clock rate\n");
+		return 0;
+	}
 
-	dma_free_coherent(NULL, PAGE_ALIGN(sizeof(*msg)), msg, msg_bus);
-	return ret;
+	return msg.val / 1000;
 }
 
 static u32 bcm2835_cpufreq_get_clock(int tag)
 {
-	int ret;
-	int arm_rate = 0;
-	dma_addr_t msg_bus;
-	struct vc_msg *msg;
-
-	msg = dma_alloc_coherent(NULL, PAGE_ALIGN(sizeof(*msg)), &msg_bus,
-							GFP_KERNEL);
-	if (!msg) {
-		pr_err("Out of DMA memory\n");
-		return -ENOMEM;
-	}
-
-	/* wipe all previous message data */
-	memset(msg, 0, sizeof(*msg));
-
-	msg->msg_size = sizeof(*msg);
-	msg->tag.tag_id = tag;
-	msg->tag.buffer_size = 8;
-	msg->tag.data_size = 4;	/* we're just sending the clock ID which
-				 * is one word long */
-	msg->tag.dev_id = VCMSG_ID_ARM_CLOCK;
+	int ret = 0;
+	struct prop msg = {
+		.dev_id = VCMSG_ID_ARM_CLOCK,
+		.val = 0,
+	};
 
 	/* send the message */
-	ret = mbox_send_message(bcm2835_property_chan, (void *)msg_bus);
+	ret = rpi_firmware_property(rpi_firmware_get(NULL), tag, &msg,
+							sizeof (msg));
 
 	/* check if it was all ok and return the rate in KHz */
-	if (ret >= 0 && (msg->request_code & 0x80000000))
-		arm_rate = msg->tag.val/1000;
+	if (ret) {
+		pr_err("bcm2835_cpufreq: could not get clock %d\n", tag);
+		return 0;
+	}
 
-	dma_free_coherent(NULL, PAGE_ALIGN(sizeof(*msg)), msg, msg_bus);
-	return arm_rate;
+	return msg.val / 1000;
 }
 
 /* Initialisation function sets up the CPU policy for first use */

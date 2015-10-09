@@ -230,7 +230,7 @@ config ARM_PXA2xx_CPUFREQ
 
 config ARM_BCM2835_CPUFREQ
 	tristate "BCM2835 CPUFreq support"
-	depends on BCM2835_MBOX
+	depends on RASPBERRYPI_FIRMWARE
 	help
 	  This adds the CPUFreq driver for BCM2835
 
