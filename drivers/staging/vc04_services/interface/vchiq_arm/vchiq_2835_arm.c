@@ -56,6 +56,8 @@
 
 #define MAX_FRAGMENTS (VCHIQ_NUM_CURRENT_BULKS * 2)
 
+#define RPI_FIRMWARE_VCHIQ_INIT 0x00048010
+
 #define BELL0	0x00
 #define BELL2	0x08
 
@@ -64,6 +66,7 @@ typedef struct vchiq_2835_state_struct {
    VCHIQ_ARM_STATE_T arm_state;
 } VCHIQ_2835_ARM_STATE_T;
 
+static struct device *dev;
 static void __iomem *g_regs;
 static unsigned int g_cache_line_size = sizeof(CACHE_LINE_SIZE);
 static unsigned int g_fragments_size;
@@ -88,7 +91,6 @@ free_pagelist(PAGELIST_T *pagelist, int actual);
 
 int vchiq_platform_init(struct platform_device *pdev, VCHIQ_STATE_T *state)
 {
-	struct device *dev = &pdev->dev;
 	struct rpi_firmware *fw = platform_get_drvdata(pdev);
 	VCHIQ_SLOT_ZERO_T *vchiq_slot_zero;
 	struct resource *res;
@@ -98,6 +100,7 @@ int vchiq_platform_init(struct platform_device *pdev, VCHIQ_STATE_T *state)
 	int slot_mem_size, frag_mem_size;
 	int err, irq, i;
 
+	dev = &pdev->dev;
 	g_virt_to_bus_offset = virt_to_dma(dev, (void *)0);
 
 	(void)of_property_read_u32(dev->of_node, "cache-line-size",
@@ -407,7 +410,7 @@ create_pagelist(char __user *buf, size_t count, unsigned short type,
 			if (bytes > length)
 				bytes = length;
 			pages[actual_pages] = pg;
-			dmac_map_area(page_address(pg) + off, bytes, dir);
+			dma_map_single(dev, (void *)page_address(pg) + off, bytes, dir);
 			length -= bytes;
 			off = 0;
 		}
@@ -566,7 +569,7 @@ free_pagelist(PAGELIST_T *pagelist, int actual)
 
 				if (bytes > length)
 					bytes = length;
-				dmac_unmap_area(page_address(pg) + offset,
+				dma_unmap_single(dev, (dma_addr_t)page_address(pg) + offset,
 						bytes, DMA_FROM_DEVICE);
 				length -= bytes;
 				offset = 0;
