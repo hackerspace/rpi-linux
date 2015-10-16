@@ -57,6 +57,7 @@ dtb-$(CONFIG_ARCH_ATLAS7) += \
 dtb-$(CONFIG_ARCH_AXXIA) += \
 	axm5516-amarillo.dtb
 dtb-$(CONFIG_ARCH_BCM2835) += \
+	bcm2835-rpi-other.dtb \
 	bcm2835-rpi-b.dtb \
 	bcm2835-rpi-a.dtb \
 	bcm2835-rpi-b-rev2.dtb \

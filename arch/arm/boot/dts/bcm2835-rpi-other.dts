@@ -1,0 +1,7 @@
+/dts-v1/;
+#include "bcm2835-rpi.dtsi"
+
+/ {
+	compatible = "brcm,bcm2835";
+	model = "Raspberry Pi Unknown Model";
+};
