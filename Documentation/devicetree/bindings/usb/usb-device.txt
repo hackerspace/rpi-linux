@@ -1,0 +1,25 @@
+Generic USB Device Properties
+
+Usually, we only use device tree for hard wired USB device.
+The reference binding doc is from:
+http://www.firmware.org/1275/bindings/usb/usb-1_0.ps
+
+Required properties:
+- compatible: usbVID,PID
+- reg: the port number which this device is connecting to, the range
+  is 1-31.
+
+
+Example:
+
+&usb1 {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hub: genesys@1 {
+		compatible = "usb05e3,0608";
+		reg = <0x1>;
+	};
+}
