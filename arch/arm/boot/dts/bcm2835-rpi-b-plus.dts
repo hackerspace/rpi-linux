@@ -6,6 +6,10 @@
 	compatible = "raspberrypi,model-b-plus", "brcm,bcm2835";
 	model = "Raspberry Pi Model B+";
 
+	aliases {
+		ethernet = &ethernet;
+	};
+
 	leds {
 		act {
 			gpios = <&gpio 47 0>;
@@ -27,5 +31,19 @@
 	i2s_alt0: i2s_alt0 {
 		brcm,pins = <18 19 20 21>;
 		brcm,function = <BCM2835_FSEL_ALT0>;
+	};
+};
+
+&usb {
+	usb1@1 {
+		compatible = "usb0424,9514";
+		reg = <01>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethernet: usbether@1 {
+			compatible = "usb0424,ec00";
+			reg = <01>;
+		};
 	};
 };
