@@ -13,6 +13,12 @@
 		};
 	};
 
+	touchscreen: ft5406 {
+		compatible = "raspberrypi,raspberrypi-ft5406";
+		firmware = <&firmware>;
+		status = "okay";
+	};
+
 	soc {
 		firmware: firmware {
 			compatible = "raspberrypi,bcm2835-firmware";
