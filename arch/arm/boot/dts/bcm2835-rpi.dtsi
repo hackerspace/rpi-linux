@@ -13,11 +13,14 @@
 		};
 	};
 
-	touchscreen: ft5406 {
+/*
+	touchscreen: ft5406@3e40ea40 {
 		compatible = "raspberrypi,raspberrypi-ft5406";
+		reg = <0x3e40ea40 63>;
 		firmware = <&firmware>;
 		status = "okay";
 	};
+*/
 
 	soc {
 		firmware: firmware {

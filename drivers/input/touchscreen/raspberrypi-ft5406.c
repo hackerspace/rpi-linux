@@ -113,8 +113,9 @@ static int rpi_ft5406_probe(struct platform_device *pdev)
 	struct input_dev *input;
 	struct rpi_ft5406 *ts;
 	struct device_node *fw_node;
-	struct rpi_firmware *fw;
 	struct device *dev = &pdev->dev;
+#if 0
+	struct rpi_firmware *fw;
 	uint32_t touchbuf;
 
 	dev_dbg(dev, "Probing device\n");
@@ -142,6 +143,7 @@ static int rpi_ft5406_probe(struct platform_device *pdev)
 	}
 
 	dev_dbg(dev, "Got TS buffer 0x%x\n", touchbuf);
+#endif
 
 	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
 	if (!ts) {
@@ -149,6 +151,7 @@ static int rpi_ft5406_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 
+#if 0
 	touchbuf &= ~0xc0000000; /* physical to bus address */
 	ts->base = devm_ioremap_nocache(dev, touchbuf,
 			sizeof(struct ft5406_regs));
@@ -156,6 +159,16 @@ static int rpi_ft5406_probe(struct platform_device *pdev)
 		dev_err(dev, "Failed to map physical address\n");
 		return -ENOMEM;
 	}
+#else
+{
+	struct resource *res;
+
+        res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+        ts->base = devm_ioremap_resource(&pdev->dev, res);
+        if (IS_ERR(ts->base))
+                return PTR_ERR(ts->base);
+}
+#endif
 
 	ts->poll_dev = devm_input_allocate_polled_device(dev);
 	if (!ts->poll_dev) {
