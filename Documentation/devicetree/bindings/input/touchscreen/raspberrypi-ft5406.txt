@@ -1,0 +1,16 @@
+Raspberry Pi 7" Touch Screen Display
+
+Raspberry Pi uses a FT5406 attached to the VideoCore's I2C bus. The firmware
+runs a thread that periodicaly does a register dump to a shared memory window.
+The interrupt and wake signals seem disconnected.
+
+Required properties:
+ - compatible: "raspberrypi,raspberrypi-ft5406"
+ - reg: address range of the shared memory with register dump
+
+Example:
+
+        touchscreen: rpi-ft5406@3e40ea40 {
+                compatible = "raspberrypi,raspberrypi-ft5406";
+                reg = <0x3e40ea40 63>;
+        };
